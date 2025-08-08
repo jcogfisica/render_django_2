@@ -1,0 +1,93 @@
+{% load bootstrap4 %} <!-- Carrega o pacote bootstrap4 -->
+{% load static %}
+<!DOCTYPE html>
+<html lang = "pt-br">
+<head>
+    <meta charset = "UTF-8"> <!-- Define a codificação de caracteres para UTF-8 (suporte a acentos e caracteres especiais) -->
+    <title>Produto</title>
+    {% bootstrap_css %} <!-- é uma tag de template que insere o CSS do Bootstrap automaticamente. É uma tag customizada que, quando o template é processado, insere automaticamente o link para o CSS do Bootstrap no HTML. -->
+    <link href = "{% static 'css/styles.css' %}" rel = "stylesheet">
+</head>
+<body>
+    <div class="container"> <!-- Cria um contêiner centralizado com margens automáticas usando o Bootstrap -->
+        <h1>Produto</h1> <!-- Título principal da página -->
+        <!-- No HTML, essas três tags fazem parte da estrutura de tabelas:
+        <tr> (table row) → define uma linha na tabela.
+        Dentro de um <tr> você coloca células (<td> ou <th>).
+        <th> (table header) → define uma célula de cabeçalho (título da coluna ou linha).
+        Por padrão, o texto vem em negrito e centralizado.
+        Geralmente fica dentro do <thead>, mas também pode ser usado no início de linhas para identificar linhas.
+        <td> (table data) → define uma célula de dados (conteúdo normal da tabela).
+        Fica dentro de <tr> e normalmente está no <tbody> da tabela. -->
+        <table class="table table-dark"> <!-- Cria uma tabela com o estilo escuro do Bootstrap -->
+            <thead> <!-- Cabeçalho da tabela -->
+                <tr> <!-- Linha de cabeçalho -->
+                    <th scope = "col">#</th> <!-- Coluna para o ID do produto -->
+                    <th scope = "col">Produto</th> <!-- Coluna para o nome do produto -->
+                    <th scope = "col">Preço</th> <!-- Coluna para o preço -->
+                    <th scope = "col">Estoque</th> <!-- Coluna para a quantidade em estoque -->
+                </tr>
+            </thead>
+            <tbody> <!-- Corpo da tabela, onde os dados serão inseridos -->
+                {% for produto in produtos %} <!-- Inicia um loop para percorrer todos os produtos passados pelo contexto -->
+                <tr> <!-- Linha da tabela para cada produto -->
+                    <td scope = "row">{{ produto.id }}</td> <!-- Exibe o ID do produto -->
+                    <!-- O atributo href="#modal{{ produto.id }}" na linha a seguir significa:
+                    O href indica o destino do link.
+                    Quando ele começa com #, não é um link para outra página, mas sim para um elemento da própria página que tenha o mesmo id.
+                    No seu caso, #modal{{ produto.id }} vai apontar para o modal cujo id é modal{{ produto.id }}.
+                    Como você usou também data-toggle="modal", o Bootstrap entende que, ao clicar nesse link,
+                    deve abrir o modal correspondente em vez de simplesmente rolar a página até ele. -->
+                    <td scope = "row"><a href = "#modal{{ produto.id }}" data-toggle = "modal">{{ produto.nome }}</a></td> <!-- Exibe o nome do produto -->
+                    <td scope = "row">{{ produto.preco }}</td> <!-- Exibe o preço do produto -->
+                    <td scope = "row">{{ produto.estoque }}</td> <!-- Exibe a quantidade disponível no estoque -->
+                </tr>
+                <!-- Início do modal;
+                     class="modal fade bd-example-modal-lg show" define que é um modal Bootstrap, com efeito de fade,
+                     tamanho grande (bd-example-modal-lg) e já visível (show).
+                     O id usa o produto.id para diferenciar cada modal no loop. -->
+                <div class = "modal fade bd-example-modal-lg show" id = "modal{{produto.id}}" role = "dialog">
+
+                    <!-- Container principal do modal, controla o posicionamento e o tamanho -->
+                    <div class = "modal-dialog">
+
+                        <!-- Conteúdo total do modal -->
+                        <div class = "modal-content">
+
+                            <!-- Cabeçalho do modal -->
+                            <div class = "modal-header">
+
+                                <!-- Botão para fechar o modal;
+                                     type="button" define que não envia formulário,
+                                     class="close" é o estilo Bootstrap para botões de fechamento,
+                                     data-dismiss="modal" faz o Bootstrap fechar o modal via JS -->
+                                <button type = "button" class="close" data-dismiss = "modal">
+
+                                    <!-- Ícone "X" para fechar;
+                                         aria-hidden="true" indica que leitores de tela ignoram o caractere -->
+                                    <span aria-hidden = "true">&times;</span>
+                                </button>
+                            </div>
+
+                            <!-- Corpo do modal, onde fica o conteúdo principal -->
+                            <div class = "modal-body" id = "dynamic-content">
+
+                                <!-- Imagem do produto;
+                                     src usa o caminho salvo no campo imagem do produto,
+                                     class="img-fluid" ajusta para ser responsiva no Bootstrap,
+                                     alt mostra o nome do produto caso a imagem não carregue -->
+                                <img src = "{{ produto.imagem.url }}" class = "img-fluid" alt = "{{ produto.nome }}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %} <!-- Finaliza o loop -->
+            </tbody>
+        </table>
+    </div>
+{% bootstrap_javascript jquery='full' %}
+<!-- O que faz o código acima?
+Insere automaticamente no seu HTML os scripts JavaScript necessários para o Bootstrap funcionar corretamente.
+O argumento jquery='full' indica que ele deve incluir a versão completa do jQuery junto com os scripts do Bootstrap. -->
+</body>
+</html>

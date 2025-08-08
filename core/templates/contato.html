@@ -1,0 +1,48 @@
+{% load bootstrap4 %} <!-- Carrega o pacote bootstrap4 -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Contato</title>
+    {% bootstrap_css %} <!-- é uma tag de template que insere o CSS do Bootstrap automaticamente. É uma tag customizada que, quando o template é processado, insere automaticamente o link para o CSS do Bootstrap no HTML. -->
+</head>
+<body>
+    <div class="container">
+        <h1>Contato</h1>
+        {% bootstrap_messages %} <!-- renderiza as mensagens do sistema (as mensagens armazenadas pelo framework de mensagens do Django — aquelas que aparecem, por exemplo, depois de uma ação como “Formulário enviado com sucesso” ou “Erro ao salvar”). Essas mensagens são exibidas formatadas com o estilo do Bootstrap (por exemplo, alertas com cores e ícones bonitos). -->
+        <form action="{% url 'contato' %}" method="post" class="form" autocomplete="off">
+<!-- Início de um formulário HTML
+Acao: Aqui é uma tag template Django — ela gera a URL para a view chamada 'contato'. Quando renderizado, vira algo tipo / contato / ou / contato / 123 / dependendo da URL configurada.
+Metodo: O metodo HTTP usado para enviar os dados do formulário — aqui é POST, que envia dados seguros para o servidor.
+Classe: Classe CSS do formulário, para estilização.
+Autocomplete: Diz ao navegador para não preencher automaticamente os campos com dados previamente digitados (desativa autofill).
+Tag:
+É uma forma do Django construir URLs de forma dinâmica e segura.
+O 'contato' é o nome da rota definido nas suas urls.py.
+Assim, se você mudar a URL da view 'contato', o template continuará funcionando, pois pega a URL atualizada.-->
+        {% csrf_token %} <!-- No Django, para proteger contra ataques CSRF, devemos incluir essa tag dentro de form. -->
+        {% bootstrap_form form %}
+<!-- Renderiza o formulario form automaticamente com a estilização do Bootstrap.
+Ou seja, gera o HTML de todos os campos do formulário (input, select, textarea, labels, erros, etc.)
+já com as classes CSS do Bootstrap para ficar bonitão e responsivo.
+Evita você ter que escrever manualmente o HTML de cada campo. -->
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">Enviar Mensagem</button>
+        {% endbuttons %}
+<!-- Este é um bloco de template customizado, vindo de uma biblioteca de integração Django + Bootstrap,
+que facilita a organização e estilização de botões em formulários.
+O que acontece aqui?
+"Dentro do bloco", você tem um botão HTML clássico com tipo "submit" e a classe Bootstrap "btn btn-primary" (que dá o estilo azul padrão para botões).
+Para que serve esse bloco?
+Normalmente, essa tag é usada para garantir que os botões dentro dela fiquem corretamente alinhados,
+estilizados e organizados conforme o padrão do Bootstrap e do pacote Django que você está usando.
+Pode adicionar markup extra, classes ou divs ao redor automaticamente, para manter o layout consistente.
+Facilita manter seu template limpo e seguir as convenções de estilo do framework. -->
+        </form>
+    </div>
+{% bootstrap_javascript jquery='full' %}
+<!-- O que faz o código acima?
+Insere automaticamente no seu HTML os scripts JavaScript necessários para o Bootstrap funcionar corretamente.
+O argumento jquery='full' indica que ele deve incluir a versão completa do jQuery junto com os scripts do Bootstrap. -->
+</body>
+</html>
