@@ -1,17 +1,14 @@
 # create_superuser.py
-from django.contrib.auth import get_user_model
+import os
+import django
 
-User = get_user_model()
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Django2.settings')  # Ajuste para seu settings
+django.setup()
 
-username = "jcogfisica"
-email = "jcogfisica@yahoo.com.br"
-password = "MON010deo010"
+from django.contrib.auth.models import User
 
-if not User.objects.filter(username=username).exists():
-    User.objects.create_superuser(username=username, email=email, password=password)
-    print("✅ Superusuário criado com sucesso!")
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', 'sua_senha')
+    print("Super usuário criado.")
 else:
-    user = User.objects.get(username=username)
-    user.set_password(password)
-    user.save()
-    print("🔄 Senha do superusuário atualizada!")
+    print("Super usuário já existe.")

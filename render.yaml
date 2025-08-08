@@ -13,7 +13,7 @@ services:
       ./build.sh
       python manage.py migrate --noinput
       python create_superuser.py
-      python manage.py loaddata backup.json
+      python manage.py loaddata backup.json'
     startCommand: "gunicorn Django2.wsgi:application"
     envVars:
       - key: DATABASE_URL
