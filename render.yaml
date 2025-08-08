@@ -9,10 +9,7 @@ services:
     plan: free
     name: mysite
     runtime: python
-    buildCommand: |
-      ./build.sh
-      python manage.py migrate --noinput
-      python manage.py loaddata backup.json'
+    buildCommand: ./build.sh
     startCommand: "gunicorn Django2.wsgi:application"
     envVars:
       - key: DATABASE_URL
