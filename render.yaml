@@ -11,8 +11,7 @@ services:
     runtime: python
     buildCommand: |
       ./build.sh
-      python manage.py migrate
-      python create_super_usuario.py
+      python manage.py migrate --noinput
       python manage.py loaddata backup.json'
     startCommand: "gunicorn Django2.wsgi:application"
     envVars:
