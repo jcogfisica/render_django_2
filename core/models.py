@@ -39,7 +39,7 @@ class Produto(Base): # Produto herda os atributos da classe Pai Base
         width_field="image_width",
         height_field="image_height",
         aspect_ratios=[None, "1/1"],
-        # breakpoints={'thumb': 200, "mobile": 576, "desktop": 992},
+        breakpoints={'thumb': 200, "mobile": 576, "desktop": 992},
         file_types=["PNG"],
         grid_columns=12,
         container_width=1200,

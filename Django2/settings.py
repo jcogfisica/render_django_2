@@ -18,8 +18,22 @@ import dj_database_url
 # dj_database_url é um pacote Python usado para simplificar a configuração do banco de dados no Django.#
 # dj_database_url.config() procura uma variável de ambiente chamada DATABASE_URL no sistema (ou no .env se você estiver usando).
 # # Essa variável normalmente contém todos os dados de conexão no formato URL.
+# DATABASES = {
+    # 'default': {
+        # 'ENGINE': 'django.db.backends.mysql',  # Banco MySQL local
+        # 'NAME': 'Django2',
+        # 'USER': 'jcog',
+        # 'PASSWORD': 'MON010deo010',
+        # 'HOST': 'localhost',
+        # 'PORT': '3306',
+    # }
+# }
 DATABASES = {
-    'default' : dj_database_url.config()
+    'default': dj_database_url.config(
+        default = 'mysql://jcog:MON010deo010@localhost:3306/Django2',  # banco local padrão, se DATABASE_URL não existir
+        conn_max_age = 600,
+        ssl_require = False # ssl_require=False nesse contexto indica que a conexão com o banco de dados não exige usar SSL (Secure Sockets Layer) para comunicação segura. SSL é um protocolo que criptografa a comunicação entre sua aplicação Django e o banco de dados para garantir segurança, especialmente em conexões pela internet.
+    )
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,7 +47,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@(3(^n#fjqx1$3+ji)zm-mhgu1edap!y6crwhho_8n0q36uy7u'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# Modo desenvolvimento: DEBUG = True
+# Modo produção: DEBUG = False
+# O Render define automaticamente a variável de ambiente RENDER como 'TRUE'
+RENDER = os.environ.get('RENDER') == 'TRUE'
+DEBUG = not RENDER
 
 ALLOWED_HOSTS = ['*'] # Para funcionar com qualquer host
 
@@ -103,16 +121,7 @@ WSGI_APPLICATION = 'Django2.wsgi.application'
     # }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Banco de dados MySQL
-        'NAME': 'Django2',
-        'USER': 'jcog',
-        'PASSWORD': 'MON010deo010',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
-}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
