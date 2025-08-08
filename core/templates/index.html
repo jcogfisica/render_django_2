@@ -10,6 +10,7 @@
 </head>
 <body>
     <div class="container"> <!-- Cria um contêiner centralizado com margens automáticas usando o Bootstrap -->
+        {% if produtos %}
         <h1>Produto</h1> <!-- Título principal da página -->
         <!-- No HTML, essas três tags fazem parte da estrutura de tabelas:
         <tr> (table row) → define uma linha na tabela.
@@ -84,6 +85,9 @@
                 {% endfor %} <!-- Finaliza o loop -->
             </tbody>
         </table>
+        {% else %}
+            <h2>Ainda não há produtos cadastrados!:-(</h2>
+        {% endif %}
     </div>
 {% bootstrap_javascript jquery='full' %}
 <!-- O que faz o código acima?
