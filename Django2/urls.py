@@ -39,4 +39,4 @@ urlpatterns = [
 # Tal metodo usa o MEDIA_URL e MEDIA_ROOT configurados no seu settings.py.
 # É importante para que imagens enviadas e outros arquivos de mídia fiquem acessíveis no navegador no ambiente de desenvolvimento.
 
-urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+# urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

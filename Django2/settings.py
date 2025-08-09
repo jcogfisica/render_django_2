@@ -164,6 +164,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Usando na produção/publi
 MEDIA_URL = '/media/' # Define a URL base pela qual os arquivos de mídia serão acessados via navegador. Por exemplo, uma imagem salva pode ser acessada em http://seusite.com/media/nome-da-imagem.jpg.
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Define o caminho físico na máquina onde os arquivos enviados serão armazenados. BASE_DIR normalmente é o diretório raiz do seu projeto. Então, todos os arquivos enviados serão guardados na pasta media dentro do seu projeto.
 
+# Se estiver no Render (produção), defina a URL absoluta para mídia
+if RENDER:
+    MEDIA_URL = 'https://render-django-2.onrender.com/'    # meu domínio
+else:
+    MEDIA_URL = '/media/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
