@@ -10,7 +10,7 @@
     <div class="container">
         <h1>Produto</h1>
         {% bootstrap_messages %} <!-- renderiza as mensagens do sistema (as mensagens armazenadas pelo framework de mensagens do Django — aquelas que aparecem, por exemplo, depois de uma ação como “Formulário enviado com sucesso” ou “Erro ao salvar”). Essas mensagens são exibidas formatadas com o estilo do Bootstrap (por exemplo, alertas com cores e ícones bonitos). -->
-        <form action="{% url 'produto' %}" method="post" class="form" autocomplete="off", enctype="multipart/form-data">
+        <form action="{% url 'produto' %}" method="post" class="form" autocomplete="off" enctype="multipart/form-data">
 <!-- Início de um formulário HTML
 Acao: Aqui é uma tag template Django — ela gera a URL para a view chamada 'produto'. Quando renderizado, vira algo tipo / produto / ou / produto / 123 / dependendo da URL configurada.
 Metodo: O metodo HTTP usado para enviar os dados do formulário — aqui é POST, que envia dados seguros para o servidor.
