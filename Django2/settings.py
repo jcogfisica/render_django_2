@@ -166,7 +166,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Define o caminho físico na máqu
 
 # Se estiver no Render (produção), defina a URL absoluta para mídia
 if RENDER:
-    MEDIA_URL = 'https://render-django-2.onrender.com/'    # meu domínio
+    MEDIA_URL = 'https://render-django-2.onrender.com/produtos/'  # site estatico que aponta para os arquivos de midia
 else:
     MEDIA_URL = '/media/'
 
