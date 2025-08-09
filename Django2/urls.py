@@ -38,3 +38,6 @@ urlpatterns = [
 # para servir os arquivos de mídia (imagens, uploads, etc) durante o desenvolvimento.
 # Tal metodo usa o MEDIA_URL e MEDIA_ROOT configurados no seu settings.py.
 # É importante para que imagens enviadas e outros arquivos de mídia fiquem acessíveis no navegador no ambiente de desenvolvimento.
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
