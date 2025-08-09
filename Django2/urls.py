@@ -32,7 +32,7 @@ urlpatterns = [
     # imagens em tempo real (por exemplo, para admin ou frontend dinâmico).
     path('pictures/', include('pictures.urls')),
     path('', include('core.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
 
 # + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT): Essa parte adiciona ao urlpatterns rotas
 # para servir os arquivos de mídia (imagens, uploads, etc) durante o desenvolvimento.
@@ -40,4 +40,4 @@ urlpatterns = [
 # É importante para que imagens enviadas e outros arquivos de mídia fiquem acessíveis no navegador no ambiente de desenvolvimento.
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
