@@ -178,6 +178,8 @@ else:
         os.path.join(BASE_DIR,'credenciais.json')
     )
 
+print("GOOGLE_APPLICATION_CREDENTIALS_JSON:", bool(GOOGLE_CREDENTIALS_JSON))
+
 # A linha de código abaixo informa ao Django que o backend padrão para armazenar arquivos enviados (ex: imagens) será o Google Cloud Storage (GCS).
 # Ou seja, quando você fizer upload de arquivos, eles serão armazenados no bucket do GCS, não no sistema de arquivos local.
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
