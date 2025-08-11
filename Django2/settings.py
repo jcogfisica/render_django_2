@@ -161,13 +161,13 @@ STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Usando na produção/publicação: o collectstatic pega todos os arquivos estáticos de nossa aplicação e coloca dentro deste diretório
 
 # As linhas de código a seguir servem para configurar o tratamento de arquivos de mídia (imagens, vídeos, etc) que os usuários enviam.
-MEDIA_URL = '/media/' # Define a URL base pela qual os arquivos de mídia serão acessados via navegador. Por exemplo, uma imagem salva pode ser acessada em http://seusite.com/media/nome-da-imagem.jpg.
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Define o caminho físico na máquina onde os arquivos enviados serão armazenados. BASE_DIR normalmente é o diretório raiz do seu projeto. Então, todos os arquivos enviados serão guardados na pasta media dentro do seu projeto.
 
-# Se estiver no Render (produção), defina a URL absoluta para mídia
 if RENDER:
-    MEDIA_URL = 'https://media-render.onrender.com'  # site estatico que aponta para os arquivos de midia
+    # Produção no Render
+    MEDIA_URL = 'https://media-render.onrender.com/produtos'  # site estático das mídias : Define a URL base pela qual os arquivos de mídia serão acessados via navegador. Por exemplo, uma imagem salva pode ser acessada em http://seusite.com/produtos/nome-da-imagem.jpg.
 else:
+    # Desenvolvimento local
     MEDIA_URL = '/media/'
 
 # Default primary key field type
