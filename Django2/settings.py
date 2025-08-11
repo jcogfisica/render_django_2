@@ -173,7 +173,7 @@ if GOOGLE_CREDENTIALS_JSON:
     GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credenciais_info)
 
 else:
-    # fallback local (desenvolvimento), carregando o arquivo de credenciais diretamente
+    # fallback local (desenvolvimento), caso rode localmente e tenha o arquivo disponível
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
         os.path.join(BASE_DIR, 'credenciais.json')
     )
