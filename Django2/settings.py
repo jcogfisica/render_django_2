@@ -112,7 +112,6 @@ PICTURES = {
 
 WSGI_APPLICATION = 'Django2.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -122,8 +121,6 @@ WSGI_APPLICATION = 'Django2.wsgi.application'
         # 'NAME': BASE_DIR / 'db.sqlite3',
     # }
 # }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -159,6 +156,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import json
+import tempfile
+
+GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
+
+if GOOGLE_CREDENTIALS_JSON:
+    # Criar um arquivo temporário com as credenciais
+    with tempfile.NamedTemporaryFile(delete = False, suffix = '.json') as temp_file:
+        temp_file.write(GOOGLE_CREDENTIALS_JSON.encode())
+        temp_file_path = temp_file.name
+
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_file_path)
+
+else:
+    # fallback local (desenvolvimento)
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+        os.path.join(BASE_DIR, 'credenciais.json')
+    )
 
 # A linha de código abaixo informa ao Django que o backend padrão para armazenar arquivos enviados (ex: imagens) será o Google Cloud Storage (GCS).
 # Ou seja, quando você fizer upload de arquivos, eles serão armazenados no bucket do GCS, não no sistema de arquivos local.
