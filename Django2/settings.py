@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 import dj_database_url
 from google.oauth2 import service_account # No settings.py, para usar a chave JSON da conta de serviço do Google Cloud, deve-se importar a classe service_account do módulo oauth2 da biblioteca do google
-import json
+import tempfile
 
 # Usando PostgreeSQL com Render; a linha de codigo abaixo está dizendo ao Django:
 # “Minha configuração de banco de dados principal (‘default’) será carregada a partir de uma URL de conexão, e quem vai interpretar essa URL é a biblioteca dj_database_url.”
@@ -158,22 +158,25 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o arquivo JSON baixado.
+# Isso autentica sua aplicação Django para acessar o bucket no GCS.
 GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
 
-# A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o JSON
-# presente na variável de ambiente. Isso autentica sua aplicação Django para acessar o bucket no GCS.
 if GOOGLE_CREDENTIALS_JSON:
-    # Converter a string JSON da variável de ambiente em um dicionário Python
-    credenciais_info = json.loads(GOOGLE_CREDENTIALS_JSON)
+    # Criar um arquivo temporário com as credenciais (necessário porque o Google SDK lê de arquivo)
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as temp_file:
+        temp_file.write(GOOGLE_CREDENTIALS_JSON.encode())
+        temp_file_path = temp_file.name
 
-    # Criar as credenciais a partir do dicionário de credenciais
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credenciais_info)
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_file_path)
 
 else:
-    # fallback local (desenvolvimento), caso rode localmente e tenha o arquivo disponível
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-        os.path.join(BASE_DIR, 'credenciais.json')
-    )
+    # Fallback local (desenvolvimento) - Certifique-se que credenciais.json exista na raiz do projeto
+    cred_path = os.path.join(BASE_DIR, 'credenciais.json')
+    if os.path.exists(cred_path):
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(cred_path)
+    else:
+        raise FileNotFoundError("Arquivo credenciais.json não encontrado e variável GOOGLE_APPLICATION_CREDENTIALS_JSON não está definida.")
 
 # A linha de código abaixo informa ao Django que o backend padrão para armazenar arquivos enviados (ex: imagens) será o Google Cloud Storage (GCS).
 # Ou seja, quando você fizer upload de arquivos, eles serão armazenados no bucket do GCS, não no sistema de arquivos local.
