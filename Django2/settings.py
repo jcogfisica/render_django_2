@@ -157,28 +157,26 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+import os
 import json
-import tempfile
+from google.oauth2 import service_account
 
 GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
 
-# A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o arquivo JSON baixado.
-# Isso autentica sua aplicação Django para acessar o bucket no GCS.
+# A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o JSON
+# presente na variável de ambiente. Isso autentica sua aplicação Django para acessar o bucket no GCS.
 if GOOGLE_CREDENTIALS_JSON:
-    # Criar um arquivo temporário com as credenciais
-    with tempfile.NamedTemporaryFile(delete = False, suffix = '.json') as temp_file:
-        temp_file.write(GOOGLE_CREDENTIALS_JSON.encode())
-        temp_file_path = temp_file.name
+    # Converter a string JSON da variável de ambiente em um dicionário Python
+    credenciais_info = json.loads(GOOGLE_CREDENTIALS_JSON)
 
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_file_path)
+    # Criar as credenciais a partir do dicionário de credenciais
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credenciais_info)
 
 else:
-    # fallback local (desenvolvimento)
+    # fallback local (desenvolvimento), carregando o arquivo de credenciais diretamente
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-        os.path.join(BASE_DIR,'credenciais.json')
+        os.path.join(BASE_DIR, 'credenciais.json')
     )
-
-print("GOOGLE_APPLICATION_CREDENTIALS_JSON:", bool(GOOGLE_CREDENTIALS_JSON))
 
 # A linha de código abaixo informa ao Django que o backend padrão para armazenar arquivos enviados (ex: imagens) será o Google Cloud Storage (GCS).
 # Ou seja, quando você fizer upload de arquivos, eles serão armazenados no bucket do GCS, não no sistema de arquivos local.
