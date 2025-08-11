@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 import dj_database_url
+from google.oauth2 import service_account # No settings.py, para usar a chave JSON da conta de serviço do Google Cloud, deve-se importar a classe service_account do módulo oauth2 da biblioteca do google
 
 # Usando PostgreeSQL com Render; a linha de codigo abaixo está dizendo ao Django:
 # “Minha configuração de banco de dados principal (‘default’) será carregada a partir de uma URL de conexão, e quem vai interpretar essa URL é a biblioteca dj_database_url.”
@@ -68,7 +69,8 @@ INSTALLED_APPS = [
     'core', # aplicação que nós criamos
     'bootstrap4', # biblioteca/aplicação django-bootstrap4 que nós instalamos
     'stdimage', # biblioteca/aplicação django-stdimage que nós instalamos
-    'pictures' # biblioteca/aplicação django-pictures que nós instalamos
+    'pictures', # biblioteca/aplicação django-pictures que nós instalamos
+    'storages' # biblioteca/aplicação  django-storages[google]
 ]
 
 MIDDLEWARE = [
@@ -153,6 +155,23 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# A linha de código abaixo informa ao Django que o backend padrão para armazenar arquivos enviados (ex: imagens) será o Google Cloud Storage (GCS).
+# Ou seja, quando você fizer upload de arquivos, eles serão armazenados no bucket do GCS, não no sistema de arquivos local.
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+# A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o arquivo JSON baixado.
+# Isso autentica sua aplicação Django para acessar o bucket no GCS.
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    os.path.join(BASE_DIR, 'credenciais.json')
+)
+
+# A linha de código abaixo define o nome do bucket no Google Cloud Storage onde os arquivos serão armazenados (django-render). Um bucket é basicamente uma pasta/container no GCS.
+GS_BUCKET_NAME = 'django-render'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -165,15 +184,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Define o caminho físico na máqu
 
 if RENDER:
     # Produção no Render
-    MEDIA_URL = 'https://media-render.onrender.com/produtos'  # site estático das mídias : Define a URL base pela qual os arquivos de mídia serão acessados via navegador. Por exemplo, uma imagem salva pode ser acessada em http://seusite.com/produtos/nome-da-imagem.jpg.
+    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/' # representa a URL base pública onde os arquivos de mídia do seu projeto Django estarão acessíveis depois de enviados para o bucket do Google Cloud Storage.
 else:
     # Desenvolvimento local
     MEDIA_URL = '/media/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # configurações de email
 # O código a seguir significa que o Django vai imprimir os e-mails no console (terminal) em vez de enviá-los de verdade.
