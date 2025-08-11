@@ -162,6 +162,8 @@ import tempfile
 
 GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
 
+# A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o arquivo JSON baixado.
+# Isso autentica sua aplicação Django para acessar o bucket no GCS.
 if GOOGLE_CREDENTIALS_JSON:
     # Criar um arquivo temporário com as credenciais
     with tempfile.NamedTemporaryFile(delete = False, suffix = '.json') as temp_file:
@@ -173,18 +175,12 @@ if GOOGLE_CREDENTIALS_JSON:
 else:
     # fallback local (desenvolvimento)
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-        os.path.join(BASE_DIR, 'credenciais.json')
+        os.path.join(BASE_DIR,'credenciais.json')
     )
 
 # A linha de código abaixo informa ao Django que o backend padrão para armazenar arquivos enviados (ex: imagens) será o Google Cloud Storage (GCS).
 # Ou seja, quando você fizer upload de arquivos, eles serão armazenados no bucket do GCS, não no sistema de arquivos local.
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-
-# A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o arquivo JSON baixado.
-# Isso autentica sua aplicação Django para acessar o bucket no GCS.
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    os.path.join(BASE_DIR, 'credenciais.json')
-)
 
 # A linha de código abaixo define o nome do bucket no Google Cloud Storage onde os arquivos serão armazenados (django-render). Um bucket é basicamente uma pasta/container no GCS.
 GS_BUCKET_NAME = 'django-render'
