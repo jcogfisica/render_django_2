@@ -13,12 +13,13 @@ import os
 from pathlib import Path
 import dj_database_url
 from google.oauth2 import service_account # No settings.py, para usar a chave JSON da conta de serviço do Google Cloud, deve-se importar a classe service_account do módulo oauth2 da biblioteca do google
+import json
 
 # Usando PostgreeSQL com Render; a linha de codigo abaixo está dizendo ao Django:
 # “Minha configuração de banco de dados principal (‘default’) será carregada a partir de uma URL de conexão, e quem vai interpretar essa URL é a biblioteca dj_database_url.”
 # dj_database_url é um pacote Python usado para simplificar a configuração do banco de dados no Django.#
 # dj_database_url.config() procura uma variável de ambiente chamada DATABASE_URL no sistema (ou no .env se você estiver usando).
-# # Essa variável normalmente contém todos os dados de conexão no formato URL.
+# Essa variável normalmente contém todos os dados de conexão no formato URL.
 # DATABASES = {
     # 'default': {
         # 'ENGINE': 'django.db.backends.mysql',  # Banco MySQL local
@@ -157,10 +158,6 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-import os
-import json
-from google.oauth2 import service_account
-
 GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
 
 # A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o JSON
@@ -185,11 +182,8 @@ DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 # A linha de código abaixo define o nome do bucket no Google Cloud Storage onde os arquivos serão armazenados (django-render). Um bucket é basicamente uma pasta/container no GCS.
 GS_BUCKET_NAME = 'django-render'
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Usando na produção/publicação: o collectstatic pega todos os arquivos estáticos de nossa aplicação e coloca dentro deste diretório
+# Define que não será aplicado ACL padrão (controle de acesso) aos arquivos no bucket (opcional, dependendo da sua configuração de permissão)
+GS_DEFAULT_ACL = None
 
 # As linhas de código a seguir servem para configurar o tratamento de arquivos de mídia (imagens, vídeos, etc) que os usuários enviam.
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Define o caminho físico na máquina onde os arquivos enviados serão armazenados. BASE_DIR normalmente é o diretório raiz do seu projeto. Então, todos os arquivos enviados serão guardados na pasta media dentro do seu projeto.
@@ -200,6 +194,13 @@ if RENDER:
 else:
     # Desenvolvimento local
     MEDIA_URL = '/media/'
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Usando na produção/publicação: o collectstatic pega todos os arquivos estáticos de nossa aplicação e coloca dentro deste diretório
+
 
 # configurações de email
 # O código a seguir significa que o Django vai imprimir os e-mails no console (terminal) em vez de enviá-los de verdade.
@@ -215,4 +216,3 @@ EMAIL_USE_TLS = True # Ativa o uso de STARTTLS, que é uma forma segura de inici
 EMAIL_HOST_PASSWORD = '<PASSWORD>'
 EMAIL_HOST_USER = 'no-reply@seudominio.com' # Esse é o endereço de e-mail que vai aparecer como remetente. Normalmente, é o mesmo que o usuário autenticado no SMTP (ex: no-reply@seudominio.com).
 """
-
