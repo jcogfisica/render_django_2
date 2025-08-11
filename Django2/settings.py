@@ -158,25 +158,19 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# A linha de código abaixo carrega as credenciais da conta de serviço do Google Cloud, usando o arquivo JSON baixado.
-# Isso autentica sua aplicação Django para acessar o bucket no GCS.
-GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
+# A linha de código abaixo pega as credenciais do Google Cloud que estão salvas como texto numa variável de ambiente, cria um arquivo .json
+# temporário com elas e passa o caminho desse arquivo para a API do Google, que só aceita arquivos físicos.
+gcp_credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 
-if GOOGLE_CREDENTIALS_JSON:
-    # Criar um arquivo temporário com as credenciais (necessário porque o Google SDK lê de arquivo)
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as temp_file:
-        temp_file.write(GOOGLE_CREDENTIALS_JSON.encode())
-        temp_file_path = temp_file.name
-
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_file_path)
-
+if gcp_credentials_json:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_cred_file:
+        temp_cred_file.write(gcp_credentials_json.encode("utf-8"))
+        temp_cred_file_path = temp_cred_file.name
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_cred_file_path)
 else:
-    # Fallback local (desenvolvimento) - Certifique-se que credenciais.json exista na raiz do projeto
-    cred_path = os.path.join(BASE_DIR, 'credenciais.json')
-    if os.path.exists(cred_path):
-        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(cred_path)
-    else:
-        raise FileNotFoundError("Arquivo credenciais.json não encontrado e variável GOOGLE_APPLICATION_CREDENTIALS_JSON não está definida.")
+    raise FileNotFoundError(
+        "Variável GOOGLE_APPLICATION_CREDENTIALS_JSON não está definida."
+    )
 
 # A linha de código abaixo informa ao Django que o backend padrão para armazenar arquivos enviados (ex: imagens) será o Google Cloud Storage (GCS).
 # Ou seja, quando você fizer upload de arquivos, eles serão armazenados no bucket do GCS, não no sistema de arquivos local.
