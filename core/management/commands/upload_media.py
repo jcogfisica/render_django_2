@@ -76,13 +76,18 @@ def upload_media_to_gcs(local_media_path, bucket_name, credentials, prefix='medi
             # download e manipulação de arquivos no bucket.
             blob = bucket.blob(gcs_path)
 
-            # Faz upload do arquivo local para o blob no bucket usando o caminho do arquivo local.
-            # O metodo upload_from_filename lê o arquivo local e envia seu conteúdo para o GCS.
-            blob.upload_from_filename(local_path)
+            try:
+                # Faz upload do arquivo local para o blob no bucket usando o caminho do arquivo local.
+                # O método upload_from_filename lê o arquivo local e envia seu conteúdo para o GCS.
+                blob.upload_from_filename(local_path)
 
-            # Imprime no terminal uma mensagem indicando que o upload foi concluído para aquele arquivo.
-            # Útil para monitorar o progresso do script durante a execução.
-            print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
+                # Imprime no terminal uma mensagem indicando que o upload foi concluído para aquele arquivo.
+                # Útil para monitorar o progresso do script durante a execução.
+                print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
+
+            except Exception as e:
+                # Caso ocorra algum erro durante o upload, imprime o erro no terminal
+                print(f"Erro ao fazer upload do arquivo {local_path}: {e}")
 
 
 class Command(BaseCommand):
@@ -103,32 +108,63 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         """
-        Metodo que é chamado automaticamente quando o comando é executado via manage.py.
+        Metodo principal executado quando o comando customizado é chamado via manage.py.
 
-        É o ponto de entrada do comando, onde a lógica de sincronização é implementada.
+        Passos:
+        1. Obtém o caminho da pasta local 'media' onde estão os arquivos a enviar.
+        2. Define o nome do bucket do Google Cloud Storage (GCS) onde os arquivos serão enviados.
+        3. Recupera o conteúdo JSON das credenciais da conta de serviço do Google a partir
+           da variável de ambiente 'GOOGLE_APPLICATION_CREDENTIALS_JSON'.
+        4. Valida se essa variável está definida; caso contrário, interrompe com erro.
+        5. Cria um arquivo local temporário 'credenciais.json' contendo o JSON das credenciais,
+           para que a biblioteca do Google consiga carregar as credenciais do arquivo.
+        6. Carrega as credenciais a partir do arquivo criado usando a classe
+           `service_account.Credentials.from_service_account_file`.
+        7. Chama a função `upload_media_to_gcs` para sincronizar os arquivos da pasta local
+           com o bucket do GCS usando as credenciais autenticadas.
+        8. Imprime uma mensagem de sucesso no terminal.
         """
 
-        # Usa o módulo os para obter o diretório atual do processo (cwd = current working directory).
-        # Junta com "media" para construir o caminho absoluto/local da pasta de mídia local.
+        # Passo 1: Define o caminho da pasta 'media' no diretório atual do projeto
         local_media_path = os.path.join(os.getcwd(), "media")
 
-        # Define o nome do bucket GCS onde os arquivos serão enviados.
+        # Verificação extra: se a pasta 'media' não existe ou está vazia, avisa e encerra
+        if not os.path.exists(local_media_path):
+            self.stdout.write(self.style.ERROR(f"Pasta '{local_media_path}' não encontrada. Abortando sincronização."))
+            return
+        if not any(os.scandir(local_media_path)):
+            self.stdout.write(self.style.WARNING(f"Pasta '{local_media_path}' está vazia. Nada para sincronizar."))
+
+        # Passo 2: Nome do bucket no Google Cloud Storage (ajuste conforme seu bucket)
         bucket_name = "django-render"
 
-        # Tenta obter o caminho do arquivo JSON de credenciais da conta de serviço Google.
-        # Primeiro tenta ler a variável de ambiente 'GOOGLE_APPLICATION_CREDENTIALS' (padrão Google).
-        # Se essa variável não estiver setada, assume que o arquivo 'credenciais.json' está na raiz do projeto.
-        cred_file_path = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS") or "credenciais.json"
+        # Passo 3: Obtém o conteúdo JSON da credencial a partir da variável de ambiente
+        cred_json_content = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 
-        # Usa o metodo from_service_account_file da classe Credentials para carregar
-        # as credenciais da conta de serviço do arquivo JSON.
-        # Essa classe é da biblioteca google.oauth2.service_account e representa as credenciais para autenticação.
+        # Passo 4: Verifica se a variável de ambiente está definida; se não, interrompe
+        if not cred_json_content:
+            raise Exception(
+                "Variável de ambiente 'GOOGLE_APPLICATION_CREDENTIALS_JSON' não definida. "
+                "Impossível autenticar no Google Cloud Storage."
+            )
+
+        # Passo 5: Cria o arquivo temporário 'credenciais.json' com o conteúdo da credencial
+        cred_file_path = os.path.join(os.getcwd(), "credenciais.json")
+        with open(cred_file_path, "w") as cred_file:
+            cred_file.write(cred_json_content)
+
+        # Passo 6: Carrega as credenciais do arquivo JSON criado
         credentials = service_account.Credentials.from_service_account_file(cred_file_path)
 
-        # Chama a função que faz o upload dos arquivos da pasta local para o bucket,
-        # passando o caminho local, nome do bucket e as credenciais carregadas.
+        # Remove o arquivo temporário após carregar as credenciais para não deixar dados sensíveis no disco
+        try:
+            os.remove(cred_file_path)
+        except Exception as e:
+            # Caso não consiga remover, apenas imprime um aviso (não interrompe o processo)
+            print(f"Aviso: não foi possível remover o arquivo temporário de credenciais: {e}")
+
+        # Passo 7: Chama a função que faz o upload dos arquivos locais para o bucket GCS
         upload_media_to_gcs(local_media_path, bucket_name, credentials)
 
-        # Escreve uma mensagem colorida de sucesso na saída padrão do Django,
-        # usando os utilitários do BaseCommand (self.stdout.write + self.style.SUCCESS).
+        # Passo 8: Imprime mensagem de sucesso na saída padrão do Django
         self.stdout.write(self.style.SUCCESS("Sincronização concluída com sucesso!"))
