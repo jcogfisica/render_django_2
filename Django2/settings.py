@@ -187,42 +187,59 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configuração para autenticação e acesso ao Google Cloud Storage (GCS)
 # -------------------------------------------------------------------
 
-gcp_credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+# gcp_credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 # A variável de ambiente 'GOOGLE_APPLICATION_CREDENTIALS_JSON' deve conter o conteúdo completo
 # do arquivo JSON da conta de serviço (service account) do Google Cloud em formato texto.
 # Esta abordagem elimina a necessidade de manter arquivos sensíveis no repositório de código.
 # print("1", gcp_credentials_json)
 
-if gcp_credentials_json:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_cred_file:
-        temp_cred_file.write(gcp_credentials_json.encode("utf-8"))
-        temp_cred_file_path = temp_cred_file.name
+# if gcp_credentials_json:
+    # with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_cred_file:
+        # temp_cred_file.write(gcp_credentials_json.encode("utf-8"))
+        # temp_cred_file_path = temp_cred_file.name
         # print("2", temp_cred_file_path)
     # Cria um arquivo temporário para armazenar o JSON das credenciais.
     # Isso é necessário pois as APIs do Google esperam receber o caminho de um arquivo físico,
     # não uma string com o conteúdo do JSON.
 
-    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_cred_file_path)
+path_credenciais = None
+
+filename = "credenciais.json"
+
+GS_CREDENTIALS = None
+
+if not DEBUG:
+    path_credenciais = "/etc/secrets/" + filename
+    if os.path.exists(path_credenciais):
+        print(f"O arquivo {path_credenciais} existe!")
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(path_credenciais)
+    else:
+        raise Exception(f"O arquivo {path_credenciais} não existe!")
     # Carrega as credenciais do arquivo JSON temporário utilizando a classe service_account.
     # O metodo from_service_account_file lê o arquivo JSON e retorna um objeto credencial.
     # print("3", GS_CREDENTIALS)
     # sys.exit(1)
 
 else:
-    cred_file = os.path.join(BASE_DIR, "credenciais.json")
+    path_credenciais = os.path.join(BASE_DIR, filename)
+    if os.path.exists(path_credenciais):
+        print(f"O arquivo {path_credenciais} existe!")
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(path_credenciais)
+    else:
+        raise Exception(f"O arquivo {path_credenciais} não existe!")
     # Caso a variável de ambiente não esteja definida,
     # tenta carregar as credenciais a partir de um arquivo local 'credenciais.json' no diretório BASE_DIR.
     # Esta abordagem é recomendada apenas para desenvolvimento local e testes.
     # print("4", cred_file)
 
-    if os.path.exists(cred_file):
-        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(cred_file)
+    # if os.path.exists(cred_file):
+        # GS_CREDENTIALS = service_account.Credentials.from_service_account_file(cred_file)
         # Se o arquivo existir, carrega as credenciais a partir dele.
         # print("5", GS_CREDENTIALS)
-    else:
-        raise FileNotFoundError(
-            "Arquivo credenciais.json não encontrado e variável GOOGLE_APPLICATION_CREDENTIALS_JSON não está definida."
-        )
+    # else:
+        # raise FileNotFoundError(
+            # "Arquivo credenciais.json não encontrado e variável GOOGLE_APPLICATION_CREDENTIALS_JSON não está definida."
+        # )
         # Caso nem o arquivo nem a variável de ambiente estejam disponíveis,
         # lança um erro para indicar a ausência das credenciais necessárias.
 
@@ -233,7 +250,7 @@ else:
 GS_BUCKET_NAME = "django-render"
 # Nome do bucket no Google Cloud Storage onde os arquivos serão armazenados.
 
-STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/maria/"
+STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
 MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
 # URLs públicas para acesso direto a arquivos estáticos e de mídia hospedados no bucket GCS.
 # O padrão da URL é o domínio oficial do GCS seguido do nome do bucket e pasta.

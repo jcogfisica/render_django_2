@@ -1,4 +1,5 @@
 import os
+
 # Biblioteca padrão do Python para interagir com o sistema operacional.
 # Fornece funcionalidades para manipular caminhos de arquivos, navegar por diretórios,
 # ler variáveis de ambiente, executar comandos do SO, entre outras operações.

@@ -22,5 +22,5 @@ services:
         value: 4
       - key: RENDER
         value: 'TRUE'  # Necessário para identificar o ambiente de produção no settings.py
-      - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
-        fromEnvGroup: Django2_render_var_ambiente
+      # - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
+        # fromEnvGroup: Django2_render_var_ambiente
