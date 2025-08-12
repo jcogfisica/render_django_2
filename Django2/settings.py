@@ -185,8 +185,22 @@ STORAGES = {
 }
 
 # Diretórios locais para desenvolvimento
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Local onde os arquivos de mídia são salvos localmente
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Local onde os arquivos estáticos são coletados localmente
+
+# Local onde os arquivos de mídia são salvos localmente
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Local onde os arquivos estáticos são coletados localmente
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# --- INCLUSÃO ADICIONAL:
+# STATICFILES_DIRS indica onde o Django deve procurar arquivos estáticos adicionais antes de coletá-los para STATIC_ROOT.
+# Aqui incluímos o diretório 'core/static', que contém seus arquivos estáticos personalizados.
+# STATICFILES_DIRS = [
+#    BASE_DIR / 'core' / 'static',
+# ]
+
+# Isso garante que, ao rodar 'python manage.py collectstatic', todos os arquivos estáticos de apps e
+# os arquivos em 'core/static' sejam coletados e enviados para o bucket, mantendo a estrutura correta.
 
 # Configurações de email (comentadas por padrão)
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -197,4 +211,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_PASSWORD = '<PASSWORD>'
 EMAIL_HOST_USER = 'no-reply@seudominio.com'
 """
-
