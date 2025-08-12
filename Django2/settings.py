@@ -9,207 +9,192 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-import os
-from pathlib import Path
-import dj_database_url
-from google.oauth2 import service_account # No settings.py, para usar a chave JSON da conta de serviço do Google Cloud, deve-se importar a classe service_account do módulo oauth2 da biblioteca do google
-import tempfile
+
+# Importações padrão para configuração e gerenciamento de caminhos
+import os  # Biblioteca padrão para interagir com o sistema operacional (variáveis de ambiente, caminhos, etc)
+from pathlib import Path  # Facilita manipulação de caminhos de forma independente do sistema operacional
+import dj_database_url  # Biblioteca que transforma URL de conexão do banco em dicionário esperado pelo Django
+from google.oauth2 import service_account
+# Classe para carregar credenciais do Google Cloud a partir de arquivo JSON (conta de serviço)
+import tempfile  # Biblioteca para criar arquivos temporários, útil para armazenar credenciais temporariamente
 
 # Usando PostgreeSQL com Render; a linha de codigo abaixo está dizendo ao Django:
 # “Minha configuração de banco de dados principal (‘default’) será carregada a partir de uma URL de conexão, e quem vai interpretar essa URL é a biblioteca dj_database_url.”
-# dj_database_url é um pacote Python usado para simplificar a configuração do banco de dados no Django.#
-# dj_database_url.config() procura uma variável de ambiente chamada DATABASE_URL no sistema (ou no .env se você estiver usando).
-# Essa variável normalmente contém todos os dados de conexão no formato URL.
-# DATABASES = {
-    # 'default': {
-        # 'ENGINE': 'django.db.backends.mysql',  # Banco MySQL local
-        # 'NAME': 'Django2',
-        # 'USER': 'jcog',
-        # 'PASSWORD': 'MON010deo010',
-        # 'HOST': 'localhost',
-        # 'PORT': '3306',
-    # }
-# }
+# dj_database_url é um pacote Python usado para simplificar a configuração do banco de dados no Django.
+# Ele lê a URL de conexão (no formato padrão) e converte para o dicionário que o Django espera.
 DATABASES = {
     'default': dj_database_url.config(
-        default = 'mysql://jcog:MON010deo010@localhost:3306/Django2',  # banco local padrão, se DATABASE_URL não existir
-        conn_max_age = 600,
-        ssl_require = False # ssl_require=False nesse contexto indica que a conexão com o banco de dados não exige usar SSL (Secure Sockets Layer) para comunicação segura. SSL é um protocolo que criptografa a comunicação entre sua aplicação Django e o banco de dados para garantir segurança, especialmente em conexões pela internet.
+        default='mysql://jcog:MON010deo010@localhost:3306/Django2',  # banco local padrão, se DATABASE_URL não existir
+        conn_max_age=600,  # Tempo de conexão persistente com o banco em segundos (melhora performance)
+        ssl_require=False  # ssl_require=False nesse contexto indica que a conexão com o banco de dados não exige SSL.
     )
 }
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# BASE_DIR aponta para a pasta raiz do projeto, usada para construir caminhos absolutos
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
+# Chave secreta do Django usada para criptografia e segurança de sessões, nunca deve ser exposta publicamente
 SECRET_KEY = 'django-insecure-@(3(^n#fjqx1$3+ji)zm-mhgu1edap!y6crwhho_8n0q36uy7u'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-# Modo desenvolvimento: DEBUG = True
-# Modo produção: DEBUG = False
 # O Render define automaticamente a variável de ambiente RENDER como 'TRUE'
 RENDER = os.environ.get('RENDER') == 'TRUE'
+# DEBUG é ativado apenas se não estiver rodando no Render (ambiente de produção)
 DEBUG = not RENDER
 
-ALLOWED_HOSTS = ['*'] # Para funcionar com qualquer host
-
+ALLOWED_HOSTS = ['*']  # Permite acesso de qualquer host (necessário para testes e hospedagem flexível)
 
 # Application definition
-
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'core', # aplicação que nós criamos
-    'bootstrap4', # biblioteca/aplicação django-bootstrap4 que nós instalamos
-    'stdimage', # biblioteca/aplicação django-stdimage que nós instalamos
-    'pictures', # biblioteca/aplicação django-pictures que nós instalamos
-    'storages' # biblioteca/aplicação  django-storages[google]
+    'django.contrib.admin',  # Admin do Django
+    'django.contrib.auth',  # Sistema de autenticação
+    'django.contrib.contenttypes',  # Suporte a tipos de conteúdo genéricos
+    'django.contrib.sessions',  # Gerenciamento de sessões do usuário
+    'django.contrib.messages',  # Sistema de mensagens do Django
+    'django.contrib.staticfiles',  # Gerenciamento de arquivos estáticos
+    'core',  # aplicação que nós criamos
+    'bootstrap4',  # biblioteca django-bootstrap4 para frontend com Bootstrap
+    'stdimage',  # biblioteca django-stdimage para manipulação de imagens
+    'pictures',  # biblioteca django-pictures para galeria de imagens
+    'storages'  # biblioteca django-storages[google] para integração com Google Cloud Storage
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Só iremos precisar disso quando formos colocar a aplicação em produção/publicação
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',  # Middleware de segurança do Django
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Necessário para servir arquivos estáticos em produção
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Gerencia sessões HTTP
+    'django.middleware.common.CommonMiddleware',  # Middleware comum para diversas funcionalidades
+    'django.middleware.csrf.CsrfViewMiddleware',  # Proteção contra CSRF (ataques cross-site request forgery)
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Autenticação do usuário
+    'django.contrib.messages.middleware.MessageMiddleware',  # Middleware para mensagens flash
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',  # Proteção contra clickjacking
 ]
 
-ROOT_URLCONF = 'Django2.urls'
+ROOT_URLCONF = 'Django2.urls'  # Arquivo principal de rotas URL
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'], # Avisa que dentro do diretório das aplicações, um diretório de templates será criado, dentro do qual estarão os nossos templates
-        'APP_DIRS': True,
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',  # Backend de templates do Django
+        'DIRS': ['templates'],  # Diretório de templates customizados
+        'APP_DIRS': True,  # Procura templates nas pastas 'templates' de cada app
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',  # Torna o request acessível nos templates
+                'django.contrib.auth.context_processors.auth',  # Adiciona contexto de autenticação
+                'django.contrib.messages.context_processors.messages',  # Adiciona contexto para mensagens
             ],
         },
     },
 ]
 
 PICTURES = {
-    "BREAKPOINTS": {'thumb': 200, "mobile": 576, "tablet": 768, "desktop": 992}, # Define larguras de tela (em pixels) que servirão como referência para gerar imagens otimizadas para diferentes dispositivos.
-    "GRID_COLUMNS": 12, # Define o número de colunas no seu sistema de grid CSS, geralmente igual ao do Bootstrap. Ajuda o Django Pictures a entender quanto espaço (em colunas) uma imagem deve ocupar, para gerar os tamanhos ideais.
-    "CONTAINER_WIDTH": 1200, # Largura máxima do container principal do seu site (em pixels). Usado como referência para gerar larguras proporcionais das imagens. Exemplo: se a imagem deve ocupar 6 colunas de 12 (metade), ela será gerada com 600px de largura (metade de 1200).
-    "FILE_TYPES": ["WEBP", "JPG", "JPEG", "BMP", "PNG"], # Lista de formatos de imagem que o sistema deve gerar.
-    "PIXEL_DENSITIES": [1, 2], # Gera imagens para diferentes tipos de tela: 1) resolução normal; 2) telas de alta densidade (Retina displays, por exemplo). Isso garante que as imagens fiquem nítidas em todos os dispositivos.
-    "USE_PLACEHOLDERS": True,
+    "BREAKPOINTS": {'thumb': 200, "mobile": 576, "tablet": 768, "desktop": 992},
+    # Pontos de corte responsivos para imagens
+    "GRID_COLUMNS": 12,  # Número de colunas para grid
+    "CONTAINER_WIDTH": 1200,  # Largura máxima do container
+    "FILE_TYPES": ["WEBP", "JPG", "JPEG", "BMP", "PNG"],  # Tipos de arquivo aceitos para imagens
+    "PIXEL_DENSITIES": [1, 2],  # Densidades para retina, etc
+    "USE_PLACEHOLDERS": True,  # Usar imagens placeholder enquanto carrega
 }
 
-WSGI_APPLICATION = 'Django2.wsgi.application'
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-    # 'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-    # }
-# }
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+WSGI_APPLICATION = 'Django2.wsgi.application'  # Aplicação WSGI para servir o projeto
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},  # Validador de similaridade
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},  # Validador de tamanho mínimo
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},  # Validador de senhas comuns
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},  # Validador de senha apenas numérica
 ]
 
+LANGUAGE_CODE = 'pt-br'  # Idioma padrão do projeto
+TIME_ZONE = 'America/Sao_Paulo'  # Fuso horário padrão
+USE_I18N = True  # Habilita internacionalização
+USE_TZ = True  # Habilita uso de timezone-aware datetime
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  # Tipo padrão para campos AutoField no Django
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
+# -------------------------------------------------------------------
+# Configuração de credenciais do Google Cloud Storage
+# -------------------------------------------------------------------
 
-LANGUAGE_CODE = 'pt-br'
+# A variável de ambiente GOOGLE_APPLICATION_CREDENTIALS_JSON deve conter
+# todo o conteúdo do arquivo JSON da conta de serviço do Google Cloud.
+# Isso é mais seguro do que manter um arquivo físico no repositório.
+# No ambiente local, é possível usar um arquivo credenciais.json apenas para testes.
 
-TIME_ZONE = 'America/Sao_Paulo'
-
-USE_I18N = True
-
-USE_TZ = True
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# A linha de código abaixo pega as credenciais do Google Cloud que estão salvas como texto numa variável de ambiente, cria um arquivo .json
-# temporário com elas e passa o caminho desse arquivo para a API do Google, que só aceita arquivos físicos.
+# Recupera o JSON das credenciais da variável de ambiente (string com conteúdo JSON)
 gcp_credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 
 if gcp_credentials_json:
+    # Criar um arquivo temporário com as credenciais
+    # Isso é necessário porque a API do GCS espera um caminho de arquivo,
+    # não uma string diretamente.
     with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_cred_file:
+        # Escreve o conteúdo da variável de ambiente no arquivo temporário
         temp_cred_file.write(gcp_credentials_json.encode("utf-8"))
         temp_cred_file_path = temp_cred_file.name
+
+    # Carregar credenciais a partir do arquivo temporário
+    # 'service_account.Credentials.from_service_account_file' lê o arquivo JSON e cria objeto de credenciais
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_cred_file_path)
+
 else:
-    raise FileNotFoundError(
-        "Variável GOOGLE_APPLICATION_CREDENTIALS_JSON não está definida."
-    )
+    # Fallback para ambiente local (desenvolvimento)
+    # Aqui usamos um arquivo credenciais.json que deve estar no diretório BASE_DIR.
+    # Isso **não** deve ser usado em produção.
+    cred_file = os.path.join(BASE_DIR, "credenciais.json")
+    if os.path.exists(cred_file):
+        # Se existir o arquivo local, carrega as credenciais dele
+        GS_CREDENTIALS = service_account.Credentials.from_service_account_file(cred_file)
+    else:
+        # Caso não exista arquivo nem variável, levanta erro para avisar que está faltando a credencial
+        raise FileNotFoundError(
+            "Arquivo credenciais.json não encontrado e variável GOOGLE_APPLICATION_CREDENTIALS_JSON não está definida."
+        )
 
-# A linha de código abaixo informa ao Django que o backend padrão para armazenar arquivos enviados (ex: imagens) será o Google Cloud Storage (GCS).
-# Ou seja, quando você fizer upload de arquivos, eles serão armazenados no bucket do GCS, não no sistema de arquivos local.
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+# -------------------------------------------------------------------
+# Configurações de armazenamento no GCS
+# -------------------------------------------------------------------
 
-# A linha de código abaixo define o nome do bucket no Google Cloud Storage onde os arquivos serão armazenados (django-render). Um bucket é basicamente uma pasta/container no GCS.
-GS_BUCKET_NAME = 'django-render'
+# Nome do bucket no Google Cloud Storage
+GS_BUCKET_NAME = "django-render"
 
-# Define que não será aplicado ACL padrão (controle de acesso) aos arquivos no bucket (opcional, dependendo da sua configuração de permissão)
-GS_DEFAULT_ACL = None
+# URLs para acesso público (para arquivos estáticos e mídia)
+STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
+MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
 
-# As linhas de código a seguir servem para configurar o tratamento de arquivos de mídia (imagens, vídeos, etc) que os usuários enviam.
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Define o caminho físico na máquina onde os arquivos enviados serão armazenados. BASE_DIR normalmente é o diretório raiz do seu projeto. Então, todos os arquivos enviados serão guardados na pasta media dentro do seu projeto.
+# Backend de armazenamento com separação de pastas (evita colisões)
+# Aqui definimos o uso do django-storages com Google Cloud Storage, especificando bucket e pasta padrão
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "OPTIONS": {
+            "bucket_name": GS_BUCKET_NAME,
+            "credentials": GS_CREDENTIALS,
+            "location": "media",  # pasta padrão para arquivos enviados
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+        "OPTIONS": {
+            "bucket_name": GS_BUCKET_NAME,
+            "credentials": GS_CREDENTIALS,
+            "location": "static",  # pasta padrão para arquivos estáticos
+        },
+    },
+}
 
-if RENDER:
-    # Produção no Render
-    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/' # representa a URL base pública onde os arquivos de mídia do seu projeto Django estarão acessíveis depois de enviados para o bucket do Google Cloud Storage.
-else:
-    # Desenvolvimento local
-    MEDIA_URL = '/media/'
+# Diretórios locais para desenvolvimento
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Local onde os arquivos de mídia são salvos localmente
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Local onde os arquivos estáticos são coletados localmente
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # Usando na produção/publicação: o collectstatic pega todos os arquivos estáticos de nossa aplicação e coloca dentro deste diretório
-
-
-# configurações de email
-# O código a seguir significa que o Django vai imprimir os e-mails no console (terminal) em vez de enviá-los de verdade.
-# É usado principalmente durante o desenvolvimento, para testar o envio de e-mails (como formulários de contato, redefinição de senha,
-# confirmação de cadastro etc.) sem precisar configurar um servidor de e-mail real.
+# Configurações de email (comentadas por padrão)
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 """
-# As linhas de código a seguir configuram o Django para enviar e-mails usando SMTP, ou seja, um servidor de envio real 
-# (diferente do backend de console que só imprime no terminal).
-EMAIL_HOST = 'localhost' # 'localhost' significa que está tentando enviar e-mails usando um servidor rodando na sua própria máquina.
-EMAIL_PORT = 587 # A porta 587 é a porta padrão para SMTP com STARTTLS (criptografia). É uma boa prática de segurança.
-EMAIL_USE_TLS = True # Ativa o uso de STARTTLS, que é uma forma segura de iniciar uma conexão criptografada.
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 EMAIL_HOST_PASSWORD = '<PASSWORD>'
-EMAIL_HOST_USER = 'no-reply@seudominio.com' # Esse é o endereço de e-mail que vai aparecer como remetente. Normalmente, é o mesmo que o usuário autenticado no SMTP (ex: no-reply@seudominio.com).
+EMAIL_HOST_USER = 'no-reply@seudominio.com'
 """
+
