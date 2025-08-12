@@ -189,11 +189,13 @@ gcp_credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 # A variável de ambiente 'GOOGLE_APPLICATION_CREDENTIALS_JSON' deve conter o conteúdo completo
 # do arquivo JSON da conta de serviço (service account) do Google Cloud em formato texto.
 # Esta abordagem elimina a necessidade de manter arquivos sensíveis no repositório de código.
+print("1", gcp_credentials_json)
 
 if gcp_credentials_json:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_cred_file:
         temp_cred_file.write(gcp_credentials_json.encode("utf-8"))
         temp_cred_file_path = temp_cred_file.name
+        print("2", temp_cred_file_path)
     # Cria um arquivo temporário para armazenar o JSON das credenciais.
     # Isso é necessário pois as APIs do Google esperam receber o caminho de um arquivo físico,
     # não uma string com o conteúdo do JSON.
@@ -201,16 +203,19 @@ if gcp_credentials_json:
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_cred_file_path)
     # Carrega as credenciais do arquivo JSON temporário utilizando a classe service_account.
     # O metodo from_service_account_file lê o arquivo JSON e retorna um objeto credencial.
+    print("3", GS_CREDENTIALS)
 
 else:
     cred_file = os.path.join(BASE_DIR, "credenciais.json")
     # Caso a variável de ambiente não esteja definida,
     # tenta carregar as credenciais a partir de um arquivo local 'credenciais.json' no diretório BASE_DIR.
     # Esta abordagem é recomendada apenas para desenvolvimento local e testes.
+    print("4", cred_file)
 
     if os.path.exists(cred_file):
         GS_CREDENTIALS = service_account.Credentials.from_service_account_file(cred_file)
         # Se o arquivo existir, carrega as credenciais a partir dele.
+        print("5", GS_CREDENTIALS)
     else:
         raise FileNotFoundError(
             "Arquivo credenciais.json não encontrado e variável GOOGLE_APPLICATION_CREDENTIALS_JSON não está definida."
