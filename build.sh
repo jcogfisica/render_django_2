@@ -11,6 +11,9 @@ python manage.py collectstatic --noinput
 # Carrega os dados do arquivo backup.json
 python manage.py loaddata backup.json
 
+# Executa o comando customizado para sincronizar a pasta media local com o bucket Google Cloud Storage
+python manage.py upload_media
+
 # Cria superusuário automaticamente, se não existir
 # O código a seguir faz o seguinte:
 # User.objects.filter(username='jcogfisica').exists() retorna True se já existir um usuário admin.
