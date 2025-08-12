@@ -64,15 +64,15 @@ def upload_media_to_gcs(local_media_path, bucket_name, credentials, prefix='medi
     for root, dirs, files in os.walk(local_media_path):
 
         # DEBUG: indica em que diretório estamos iterando
-        # print(f"[DEBUG] upload_media_to_gcs - diretório atual: {root}")
+        print(f"[DEBUG] upload_media_to_gcs - diretório atual: {root}")
 
         if dirs:
             # DEBUG: lista subpastas no diretório atual
-            # print(f"[DEBUG] upload_media_to_gcs - subpastas encontradas: {dirs}")
+            print(f"[DEBUG] upload_media_to_gcs - subpastas encontradas: {dirs}")
             pass
         if files:
             # DEBUG: lista arquivos no diretório atual
-            # print(f"[DEBUG] upload_media_to_gcs - arquivos encontrados: {files}")
+            print(f"[DEBUG] upload_media_to_gcs - arquivos encontrados: {files}")
             pass
 
         for filename in files:
@@ -99,7 +99,7 @@ def upload_media_to_gcs(local_media_path, bucket_name, credentials, prefix='medi
             gcs_path = f"{prefix}/{relative_path.replace(os.sep, '/')}"
 
             # DEBUG: mostra o mapeamento local -> remoto antes do upload
-            # print(f"[DEBUG] upload_media_to_gcs - preparando upload: {local_path} -> gs://{bucket_name}/{gcs_path}")
+            print(f"[DEBUG] upload_media_to_gcs - preparando upload: {local_path} -> gs://{bucket_name}/{gcs_path}")
 
             # Cria um objeto Blob no bucket, que representa um arquivo armazenado em GCS.
             # A classe google.cloud.storage.blob.Blob encapsula funcionalidades para upload,
@@ -172,10 +172,10 @@ class Command(BaseCommand):
             return  # Interrompe execução se pasta estiver vazia
 
         # DEBUG: conta total de arquivos na pasta media (recursivamente)
-        # total_files = 0
-        # for _, _, files in os.walk(local_media_path):
-        #     total_files += len(files)
-        # print(f"[DEBUG] handle - total de arquivos encontrados em '{local_media_path}': {total_files}")
+        total_files = 0
+        for _, _, files in os.walk(local_media_path):
+            total_files += len(files)
+        print(f"[DEBUG] handle - total de arquivos encontrados em '{local_media_path}': {total_files}")
 
         # Passo 2: Nome do bucket no Google Cloud Storage (ajuste conforme seu bucket)
         bucket_name = "django-render"
@@ -184,7 +184,7 @@ class Command(BaseCommand):
         cred_file_path = os.path.join(os.getcwd(), "credenciais.json")
 
         # DEBUG: informa se o arquivo de credenciais existe
-        # print(f"[DEBUG] handle - cred_file_path = {cred_file_path}, existe? {os.path.exists(cred_file_path)}")
+        print(f"[DEBUG] handle - cred_file_path = {cred_file_path}, existe? {os.path.exists(cred_file_path)}")
 
         # Passo 5: Verifica se o arquivo de credenciais existe
         if not os.path.exists(cred_file_path):
@@ -193,10 +193,10 @@ class Command(BaseCommand):
         # Passo 6: Carrega as credenciais do arquivo JSON local
         credentials = service_account.Credentials.from_service_account_file(cred_file_path)
         # DEBUG: confirma tipo de objeto de credenciais carregado (sem imprimir conteúdo sensível)
-        # print(f"[DEBUG] handle - credenciais carregadas: {type(credentials)}")
+        print(f"[DEBUG] handle - credenciais carregadas: {type(credentials)}")
 
         # Passo 7: Chama a função que faz o upload dos arquivos locais para o bucket GCS
-        # print("[DEBUG] handle - iniciando upload_media_to_gcs()")
+        print("[DEBUG] handle - iniciando upload_media_to_gcs()")
         upload_media_to_gcs(local_media_path, bucket_name, credentials)
 
         # Passo 8: Imprime mensagem de sucesso na saída padrão do Django
