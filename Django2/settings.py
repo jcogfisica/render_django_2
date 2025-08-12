@@ -10,6 +10,8 @@ Para a lista completa de configurações e seus valores, consulte:
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import sys
+
 # Importações necessárias para manipulação de caminhos e variáveis de ambiente
 
 import os
@@ -204,6 +206,7 @@ if gcp_credentials_json:
     # Carrega as credenciais do arquivo JSON temporário utilizando a classe service_account.
     # O metodo from_service_account_file lê o arquivo JSON e retorna um objeto credencial.
     print("3", GS_CREDENTIALS)
+    sys.exit(1)
 
 else:
     cred_file = os.path.join(BASE_DIR, "credenciais.json")
