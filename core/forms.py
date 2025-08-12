@@ -9,12 +9,12 @@ from .models import Produto # Importamos do módulo models a classe Produto
 # O django tem um módulo forms o qual, por sua vez, possui uma classe chamada Form.
 # Nossa classe ContatoForm irá herdar alguns atributos e métodos interessantes que serão utilizados em nossa aplicação: Herança da Orientação a Objetos
 class ContatoForm(forms.Form):
-    nome = forms.CharField(label='Nome', max_length=100) # campo nome
-    email = forms.EmailField(label='E-mail', max_length=100) # campo e-mail
-    assunto = forms.CharField(label='Assunto', max_length=120) # campo assunto
+    nome = forms.CharField(label = 'Nome', max_length = 100) # campo nome
+    email = forms.EmailField(label = 'E-mail', max_length = 100) # campo e-mail
+    assunto = forms.CharField(label = 'Assunto', max_length = 120) # campo assunto
     # campo mensagem: O atributo widget é preenchido com Textarea(), pois o CharField é um campo de entrada de texto de 1 linha;
     # só que para uma mensagem, este campo de texto de 1 linha não é suficiente. Com o atributo widget = Textarea(), temos uma caixa de texto com várias linhas.
-    mensagem = forms.CharField(label='Mensagem', max_length=1000, widget=Textarea())
+    mensagem = forms.CharField(label = 'Mensagem', max_length = 1000, widget = Textarea())
 
     def send_mail(self):
         nome = self.cleaned_data['nome'] # Recuperamos os dados inseridos nos campos do formulário
@@ -25,11 +25,11 @@ class ContatoForm(forms.Form):
         conteudo = f"Nome: {nome}\nE-mail: {email}\nAssunto: {assunto}\nMensagem: {mensagem}" # Montamos o conteúdo
 
         mail = EmailMessage(
-            subject='E-mail enviado pelo sistema Django2.',
-            body=conteudo,
-            from_email='contato@seudominio.com.br',
-            to=['contato@seudominio.com.br'],
-            headers={'Reply-To': email}
+            subject = 'E-mail enviado pelo sistema Django2.',
+            body = conteudo,
+            from_email = 'contato@seudominio.com.br',
+            to = ['contato@seudominio.com.br'],
+            headers = {'Reply-To': email}
         ) # Definimos o objeto mail da classe EmailMessage, passando os valores aos atributos
 
         mail.send() # Aplica o metodo send() ao objeto mail da classe EmailMessage definido acima

@@ -29,7 +29,7 @@ echo "Sincronizando mídia com bucket GCS"
 python manage.py upload_media
 # Garante que as mídias carregadas localmente estejam disponíveis no bucket.
 # Essencial para que imagens e outros arquivos de mídia sejam acessíveis em produção.
-# Atenção: certifique-se que este comando esteja implementado para subir todo conteúdo necessário.
+# Atenção: certifique-se que este comando esteja implementado para subir o conteudo completo necessario.
 
 echo "Criando superusuário se não existir"
 # Cria superusuário automaticamente se ainda não existir.

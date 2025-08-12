@@ -1,5 +1,4 @@
 import os
-
 # Biblioteca padrão do Python para interagir com o sistema operacional.
 # Fornece funcionalidades para manipular caminhos de arquivos, navegar por diretórios,
 # ler variáveis de ambiente, executar comandos do SO, entre outras operações.
@@ -26,7 +25,6 @@ from google.oauth2 import service_account
 import traceback
 # Biblioteca padrão para imprimir o rastreamento de exceções (útil para debug detalhado).
 
-
 def upload_media_to_gcs(local_media_path, bucket_name, credentials, prefix='media'):
     """
     Função que sincroniza recursivamente os arquivos da pasta local_media_path (local)
@@ -41,92 +39,92 @@ def upload_media_to_gcs(local_media_path, bucket_name, credentials, prefix='medi
     Essa função faz upload dos arquivos mantendo a estrutura de pastas relativa dentro do prefixo.
     """
 
+    client = storage.Client(credentials = credentials)
     # Cria um cliente autenticado para se comunicar com o Google Cloud Storage.
     # O objeto 'client' é uma instância da classe google.cloud.storage.Client,
     # que representa o ponto de entrada para interagir com o serviço GCS.
-    client = storage.Client(credentials=credentials)
 
+    bucket = client.bucket(bucket_name)
     # Obtém uma referência ao bucket no GCS pelo nome fornecido.
     # 'bucket' é uma instância da classe google.cloud.storage.bucket.Bucket,
     # que representa um container lógico de objetos (arquivos) dentro do GCS.
-    bucket = client.bucket(bucket_name)
 
-    # Contadores de sucesso/erro para relatório final
     success_count = 0
     error_count = 0
     total_count = 0
+    # Contadores de sucesso/erro para relatório final
 
+    for root, dirs, files in os.walk (local_media_path):
     # Percorre a árvore de diretórios da pasta local_media_path usando os.walk do módulo os.
     # os.walk gera uma tupla (root, dirs, files) para cada diretório:
     # - root: caminho atual sendo percorrido,
     # - dirs: lista de subdiretórios dentro de root,
     # - files: lista de arquivos dentro de root.
     # Aqui usamos para processar todos os arquivos de forma recursiva.
-    for root, dirs, files in os.walk(local_media_path):
 
+        # print(f"[DEBUG] upload_media_to_gcs - diretório atual: {root}")
         # DEBUG: indica em que diretório estamos iterando
-        print(f"[DEBUG] upload_media_to_gcs - diretório atual: {root}")
 
         if dirs:
+            # print(f"[DEBUG] upload_media_to_gcs - subpastas encontradas: {dirs}")
             # DEBUG: lista subpastas no diretório atual
-            print(f"[DEBUG] upload_media_to_gcs - subpastas encontradas: {dirs}")
             pass
+
         if files:
+            # print(f"[DEBUG] upload_media_to_gcs - arquivos encontrados: {files}")
             # DEBUG: lista arquivos no diretório atual
-            print(f"[DEBUG] upload_media_to_gcs - arquivos encontrados: {files}")
             pass
 
         for filename in files:
             total_count += 1
 
+            local_path = os.path.join(root, filename)
             # Junta o caminho do diretório atual 'root' com o nome do arquivo,
             # formando o caminho absoluto ou relativo completo para o arquivo local.
-            local_path = os.path.join(root, filename)
 
-            # Ignorar arquivos vazios (tamanho 0 bytes)
             if os.path.getsize(local_path) == 0:
-                print(f"Aviso: Ignorando arquivo vazio {local_path}")
+                # print(f"Aviso: Ignorando arquivo vazio {local_path}")
                 continue
+                # Ignorar arquivos vazios (tamanho 0 bytes)
 
+            relative_path = os.path.relpath(local_path, local_media_path)
             # Calcula o caminho relativo do arquivo em relação ao diretório base local_media_path.
             # Isso é importante para preservar a estrutura de pastas ao enviar para o bucket.
             # Exemplo: se local_path = "media/uploads/img.jpg" e local_media_path = "media",
             # relative_path será "uploads/img.jpg".
-            relative_path = os.path.relpath(local_path, local_media_path)
 
+            gcs_path = f"{prefix}/{relative_path.replace(os.sep, '/')}"
             # Gera o caminho final dentro do bucket, concatenando o prefixo com o caminho relativo do arquivo.
             # Substitui '\' por '/' para garantir compatibilidade com a forma Unix de caminhos no GCS,
             # pois GCS usa caminhos estilo URL (com '/').
-            gcs_path = f"{prefix}/{relative_path.replace(os.sep, '/')}"
 
+            # print(f"[DEBUG] upload_media_to_gcs - preparando upload: {local_path} -> gs://{bucket_name}/{gcs_path}")
             # DEBUG: mostra o mapeamento local -> remoto antes do upload
-            print(f"[DEBUG] upload_media_to_gcs - preparando upload: {local_path} -> gs://{bucket_name}/{gcs_path}")
 
+            blob = bucket.blob(gcs_path)
             # Cria um objeto Blob no bucket, que representa um arquivo armazenado em GCS.
             # A classe google.cloud.storage.blob.Blob encapsula funcionalidades para upload,
             # download e manipulação de arquivos no bucket.
-            blob = bucket.blob(gcs_path)
 
             try:
+                blob.upload_from_filename(local_path)
                 # Faz upload do arquivo local para o blob no bucket usando o caminho do arquivo local.
                 # O metodo upload_from_filename lê o arquivo local e envia seu conteúdo para o GCS.
-                blob.upload_from_filename(local_path)
 
+                # print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
                 # Imprime no terminal uma mensagem indicando que o upload foi concluído para aquele arquivo.
                 # Útil para monitorar o progresso do script durante a execução.
-                print(f"Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
                 success_count += 1
 
             except Exception as e:
+                # print(f"Erro ao fazer upload do arquivo {local_path}: {e}")
                 # Caso ocorra algum erro durante o upload, imprime o erro no terminal
-                print(f"Erro ao fazer upload do arquivo {local_path}: {e}")
                 # DEBUG: imprime traceback completo para diagnóstico
                 traceback.print_exc()
                 error_count += 1
 
+    # print(f"Upload finalizado: total verificados: {total_count}, enviados com sucesso: {success_count}, falhas: {error_count}")
     # Relatório final resumido
-    print(f"Upload finalizado: total verificados: {total_count}, enviados com sucesso: {success_count}, falhas: {error_count}")
-
 
 class Command(BaseCommand):
     """
@@ -140,9 +138,9 @@ class Command(BaseCommand):
       python manage.py sync_media
     """
 
+    help = "Sincroniza a pasta media local com o bucket Google Cloud Storage."
     # Atributo de classe 'help' que fornece uma descrição curta do que o comando faz,
     # exibida quando o usuário roda `python manage.py help sync_media`.
-    help = "Sincroniza a pasta media local com o bucket Google Cloud Storage."
 
     def handle(self, *args, **kwargs):
         """
@@ -161,44 +159,44 @@ class Command(BaseCommand):
         8. Imprime uma mensagem de sucesso no terminal.
         """
 
-        # Passo 1: Define o caminho da pasta 'media' no diretório atual do projeto
         local_media_path = os.path.join(os.getcwd(), "media")
+        # Passo 1: Define o caminho da pasta 'media' no diretório atual do projeto
 
-        # Verificação extra: se a pasta 'media' não existe ou está vazia, avisa e encerra
         if not os.path.exists(local_media_path):
             self.stdout.write(self.style.ERROR(f"Pasta '{local_media_path}' não encontrada. Abortando sincronização."))
             return
         if not any(os.scandir(local_media_path)):
             self.stdout.write(self.style.WARNING(f"Pasta '{local_media_path}' está vazia. Nada para sincronizar."))
             return  # Interrompe execução se pasta estiver vazia
+        # Verificação extra: se a pasta 'media' não existe ou está vazia, avisa e encerra
 
-        # DEBUG: conta total de arquivos na pasta media (recursivamente)
         total_files = 0
         for _, _, files in os.walk(local_media_path):
             total_files += len(files)
-        print(f"[DEBUG] handle - total de arquivos encontrados em '{local_media_path}': {total_files}")
+        # print(f"[DEBUG] handle - total de arquivos encontrados em '{local_media_path}': {total_files}")
+        # DEBUG: conta total de arquivos na pasta media (recursivamente)
 
-        # Passo 2: Nome do bucket no Google Cloud Storage (ajuste conforme seu bucket)
         bucket_name = "django-render"
+        # Passo 2: Nome do bucket no Google Cloud Storage (ajuste conforme seu bucket)
 
-        # Passo 3: Define o caminho local para o arquivo de credenciais JSON
         cred_file_path = os.path.join(os.getcwd(), "credenciais.json")
+        # Passo 3: Define o caminho local para o arquivo de credenciais JSON
 
+        # print(f"[DEBUG] handle - cred_file_path = {cred_file_path}, existe? {os.path.exists(cred_file_path)}")
         # DEBUG: informa se o arquivo de credenciais existe
-        print(f"[DEBUG] handle - cred_file_path = {cred_file_path}, existe? {os.path.exists(cred_file_path)}")
 
-        # Passo 5: Verifica se o arquivo de credenciais existe
         if not os.path.exists(cred_file_path):
             raise Exception(f"Arquivo de credenciais '{cred_file_path}' não encontrado. Impossível autenticar no Google Cloud Storage.")
+        # Passo 5: Verifica se o arquivo de credenciais existe
 
-        # Passo 6: Carrega as credenciais do arquivo JSON local
         credentials = service_account.Credentials.from_service_account_file(cred_file_path)
         # DEBUG: confirma tipo de objeto de credenciais carregado (sem imprimir conteúdo sensível)
-        print(f"[DEBUG] handle - credenciais carregadas: {type(credentials)}")
+        # print(f"[DEBUG] handle - credenciais carregadas: {type(credentials)}")
+        # Passo 6: Carrega as credenciais do arquivo JSON local
 
-        # Passo 7: Chama a função que faz o upload dos arquivos locais para o bucket GCS
-        print("[DEBUG] handle - iniciando upload_media_to_gcs()")
+        # print("[DEBUG] handle - iniciando upload_media_to_gcs()")
         upload_media_to_gcs(local_media_path, bucket_name, credentials)
+        # Passo 7: Chama a função que faz o upload dos arquivos locais para o bucket GCS
 
-        # Passo 8: Imprime mensagem de sucesso na saída padrão do Django
         self.stdout.write(self.style.SUCCESS("Sincronização concluída com sucesso!"))
+        # Passo 8: Imprime mensagem de sucesso na saída padrão do Django

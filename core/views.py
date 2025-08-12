@@ -20,7 +20,7 @@ def index(request):
     # Esse HTML pode conter tags do Django como {% for %} ou {{ variável }}, que serão processadas antes do envio ao navegador.
     # 3) Passa dados para o template usando context: O context é um dicionário com variáveis que o template pode usar.
     # Em nosso caso, context = {'produtos': Produto.objects.all()} significa que, no HTML, você pode acessar {{ produtos }} e iterar sobre ele com {% for produto in produtos %}.
-    return render(request, 'index.html', context=context)
+    return render(request, 'index.html', context = context)
 
 # View 2
 def contato(request):
@@ -63,7 +63,7 @@ def produto(request): # Define uma view Django chamada produto que recebe o obje
                 # print(f"Estoque: {prod.estoque}")
                 # print(f"Imagem: {prod.imagem}")
 
-                form.save(commit=True) # Salva a forma no banco de dados
+                form.save(commit = True) # Salva a forma no banco de dados
 
                 messages.success(request, "Produto adicionado com sucesso!") # Adiciona uma mensagem de sucesso que pode ser exibida no template (usando o framework de mensagens do Django).
             else:

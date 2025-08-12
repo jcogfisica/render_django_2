@@ -18,35 +18,35 @@ class Base(models.Model): # Define um modelo Django chamado Base. Ele herda de m
     # A linha de código a seguir cria um campo de data/hora chamado criado.
     # O valor é preenchido automaticamente com a data/hora no momento em que o objeto for criado.
     # O atributo auto_now_add=True garante que esse valor não muda mais depois.
-    criado = models.DateTimeField('Data de criação', auto_now_add=True)
+    criado = models.DateTimeField('Data de criação', auto_now_add = True)
     # A linha de código a seguir cria o campo modificado, também do tipo DateTimeField.
     # Esse campo é atualizado automaticamente toda vez que o objeto for salvo.
     # É útil para rastrear a última alteração.
-    modificado = models.DateTimeField('Data de modificação', auto_now=True)
+    modificado = models.DateTimeField('Data de modificação', auto_now = True)
     # A linha a seguir cria um campo booleano chamado ativo. Serve para indicar se a instância está ativa ou não.
     # Pode ser usado como uma “flag de exclusão lógica”, onde o objeto não é deletado, apenas marcado como inativo.
-    ativo = models.BooleanField('Ativo?', default=True)
+    ativo = models.BooleanField('Ativo?', default = True)
     # Por fim, o código a seguir diz ao Django que a classe Base é abstrata. Ou seja: não vai gerar uma tabela no banco de dados.
     # É usada apenas como base para outras models, que vão herdar esses campos automaticamente.
     class Meta:
         abstract = True # A classe Base, que estende models.Model, é uma classe abstrata. Classe abstrata não pode ser criada em banco de dados: ela vai servir de rascunho para outras classes.
 
 class Produto(Base): # Produto herda os atributos da classe Pai Base
-    nome = models.CharField('Nome', max_length=100)
-    preco = models.DecimalField('Preço', max_digits=8, decimal_places=2)
+    nome = models.CharField('Nome', max_length = 100)
+    preco = models.DecimalField('Preço', max_digits = 8, decimal_places = 2)
     estoque = models.IntegerField('Estoque')
-    imagem = PictureField(upload_to='produtos',
-        width_field="image_width",
-        height_field="image_height",
+    imagem = PictureField(upload_to = 'produtos',
+        width_field = "image_width",
+        height_field = "image_height",
         aspect_ratios=[None, "1/1"],
-        breakpoints={'thumb': 200, "mobile": 576, "desktop": 992},
-        file_types=["PNG"],
-        grid_columns=12,
-        container_width=1200,
-        pixel_densities=[1, 2],)
-    image_width = models.PositiveIntegerField(null=True, editable=False)
-    image_height = models.PositiveIntegerField(null=True, editable=False)
-    slug = models.SlugField('Slug', max_length=100, blank=True, editable=False)
+        breakpoints = {'thumb': 200, "mobile": 576, "desktop": 992},
+        file_types = ["PNG"],
+        grid_columns = 12,
+        container_width = 1200,
+        pixel_densities = [1, 2],)
+    image_width = models.PositiveIntegerField(null = True, editable = False)
+    image_height = models.PositiveIntegerField(null = True, editable = False)
+    slug = models.SlugField('Slug', max_length = 100, blank = True, editable = False)
 
     def __str__(self):
         return self.nome
@@ -64,4 +64,4 @@ def produto_pre_save(signal, instance, sender, *args, **kwargs):
 # signals.pre_save: sinal do Django que é emitido antes de um objeto ser salvo.
 # connect(...): conecta a função produto_pre_save ao modelo Produto.
 # Resultado: toda vez que um Produto for salvo, a função será executada automaticamente antes do save().
-signals.pre_save.connect(produto_pre_save, sender=Produto)
+signals.pre_save.connect(produto_pre_save, sender = Produto)
