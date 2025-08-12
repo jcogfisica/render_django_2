@@ -206,7 +206,7 @@ if gcp_credentials_json:
     # Carrega as credenciais do arquivo JSON temporário utilizando a classe service_account.
     # O metodo from_service_account_file lê o arquivo JSON e retorna um objeto credencial.
     print("3", GS_CREDENTIALS)
-    sys.exit(1)
+    # sys.exit(1)
 
 else:
     cred_file = os.path.join(BASE_DIR, "credenciais.json")
