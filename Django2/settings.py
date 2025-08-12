@@ -118,7 +118,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  # Tipo padrão para campos
 # -------------------------------------------------------------------
 
 # A variável de ambiente GOOGLE_APPLICATION_CREDENTIALS_JSON deve conter
-# todo o conteúdo do arquivo JSON da conta de serviço do Google Cloud.
+# o conteudo completo do arquivo JSON da conta de serviço do Google Cloud.
 # Isso é mais seguro do que manter um arquivo físico no repositório.
 # No ambiente local, é possível usar um arquivo credenciais.json apenas para testes.
 
@@ -184,8 +184,10 @@ STORAGES = {
     },
 }
 
-# Diretórios locais para desenvolvimento
+# Define que os arquivos de mídia serão salvos no Google Cloud Storage
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
+# Diretórios locais para desenvolvimento
 # Local onde os arquivos de mídia são salvos localmente
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
