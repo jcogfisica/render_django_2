@@ -225,7 +225,7 @@ else:
 GS_BUCKET_NAME = "django-render"
 # Nome do bucket no Google Cloud Storage onde os arquivos serão armazenados.
 
-STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/static/"
+STATIC_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/maria/"
 MEDIA_URL = f"https://storage.googleapis.com/{GS_BUCKET_NAME}/media/"
 # URLs públicas para acesso direto a arquivos estáticos e de mídia hospedados no bucket GCS.
 # O padrão da URL é o domínio oficial do GCS seguido do nome do bucket e pasta.
