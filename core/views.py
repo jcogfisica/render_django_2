@@ -4,6 +4,7 @@ from django.contrib import messages # Permite que sejam exibidas mensagens no co
 from .forms import ContatoForm, ProdutoModelForm
 from .models import Produto
 
+import sys
 
 # View 1
 def index(request):
@@ -75,6 +76,7 @@ def produto(request): # Define uma view Django chamada produto que recebe o obje
         context = {
             'form': form,
         } # Prepara o contexto para enviar ao template, com o formulário (seja vazio ou preenchido).
+        sys.exit(1)
         return render(request, 'produto.html', context) # Renderiza o template produto.html, enviando o contexto com o formulário.
     else:
         return redirect("index") # O usuário só será permitido preencher o formulário se estiver logado/autenticado; caso contrário, ao tentar acessá-lo será redirecionado para a página index.html

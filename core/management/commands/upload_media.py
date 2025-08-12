@@ -1,5 +1,3 @@
-import sys
-
 import os
 # Biblioteca padrão do Python para interagir com o sistema operacional.
 # Fornece funcionalidades para manipular caminhos de arquivos, navegar por diretórios,
@@ -203,5 +201,3 @@ class Command(BaseCommand):
 
         # Passo 8: Imprime mensagem de sucesso na saída padrão do Django
         self.stdout.write(self.style.SUCCESS("Sincronização concluída com sucesso!"))
-
-        sys.exit(1)
