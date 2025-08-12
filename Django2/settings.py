@@ -72,9 +72,28 @@ DEBUG = not RENDER
 # DEBUG será True somente quando não estiver no ambiente Render.
 # Isso ativa/desativa o modo de depuração do Django.
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']  # Permite acesso local
 # Lista de hosts permitidos para responder requisições HTTP.
 # Usar '*' permite acesso irrestrito de qualquer domínio, o que é seguro somente para desenvolvimento.
+
+if not DEBUG:
+    # Obtém o hostname externo definido automaticamente pelo serviço Render
+    # Essa variável de ambiente contém o domínio pelo qual seu app é acessado publicamente,
+    # por exemplo: 'mysite-nurz.onrender.com'
+    external = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
+    if external:
+        # Adiciona o hostname externo à lista ALLOWED_HOSTS para permitir requisições HTTP vindas desse domínio.
+        # Sem essa configuração, o Django bloquearia requisições com erro 400 (Bad Host Header).
+        ALLOWED_HOSTS.append(external)
+
+    # Adiciona um domínio genérico para permitir qualquer subdomínio do domínio 'onrender.com'.
+    # Ao usar o prefixo '.' (ponto) antes do domínio, Django aceita o domínio principal
+    # e todos os seus subdomínios, por exemplo:
+    # 'onrender.com', 'www.onrender.com', 'mysite.onrender.com', etc.
+    # Isso é importante para garantir que seu app funcione mesmo que o subdomínio mude ou
+    # você crie subdomínios adicionais.
+    ALLOWED_HOSTS.append('.onrender.com')
 
 INSTALLED_APPS = [
     'django.contrib.admin',         # Interface administrativa padrão do Django.
@@ -181,7 +200,7 @@ if gcp_credentials_json:
 
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file(temp_cred_file_path)
     # Carrega as credenciais do arquivo JSON temporário utilizando a classe service_account.
-    # O método from_service_account_file lê o arquivo JSON e retorna um objeto credencial.
+    # O metodo from_service_account_file lê o arquivo JSON e retorna um objeto credencial.
 
 else:
     cred_file = os.path.join(BASE_DIR, "credenciais.json")
@@ -237,6 +256,14 @@ STORAGES = {
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 # Define que os arquivos de mídia serão armazenados por padrão usando o backend GoogleCloudStorage.
 # Isso faz com que o Django salve os uploads dos usuários diretamente no bucket configurado.
+
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+# Essa é uma configuração do Django que define qual backend será usado para armazenar e servir os arquivos estáticos.
+# Por padrão, o Django armazena os arquivos estáticos localmente (no servidor), mas em produção é comum usar serviços externos de armazenamento,
+# como o Google Cloud Storage (GCS), Amazon S3, Azure Blob Storage, etc.
+# Quando você define: STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage',
+# você está dizendo para o Django que: Ao executar collectstatic, ao invés de copiar os arquivos para uma pasta local (como STATIC_ROOT),
+# o Django vai fazer o upload diretamente para um bucket do Google Cloud Storage.
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Diretório local onde arquivos enviados pelos usuários serão salvos.
